@@ -16,6 +16,9 @@ class TaxServiceProvider extends ServiceProvider
     {
         $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
         $this->loadViewsFrom(__DIR__.'/../resources/views', $this->package);
+
+        // 데이터베이스
+        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
     }
 
     public function register()

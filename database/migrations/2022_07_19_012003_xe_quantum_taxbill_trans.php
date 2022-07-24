@@ -19,23 +19,31 @@ class XeQuantumTaxbillTrans extends Migration
             $table->timestamps();
 
             // ***** 세금계산서 정보 *****
-            $table->string('write_date')->nullable(); // [필수] 작성일자, 형식(yyyyMMdd) 예)20150101
+
             $table->string('issue_type')->nullable(); // [필수] 발행형태, '정발행', '역발행', '위수탁' 중 기재
+
             $table->string('charge_direction')->nullable(); // [필수] 과금방향,
             // - '정과금'(공급자 과금), '역과금'(공급받는자 과금) 중 기재, 역과금은 역발행시에만 가능.
-            $table->string('purpose_type')->nullable(); // [필수] '영수', '청구', '없음' 중 기재
+
             $table->string('tax_type')->nullable(); // [필수] 과세형태, '과세', '영세', '면세' 중 기재
+
+            // 기재상 '권' 항목, 최대값 32767
+            $table->string('kwon')->nullable();  // 미기재시 $Taxinvoice->kwon = null;
+            // 기재상 '호' 항목, 최대값 32767
+            $table->string('ho')->nullable(); // 미기재시 $Taxinvoice->ho = null;
+            $table->string('invoicer_mgt_key')->nullable(); // [필수] 공급자 문서번호, 최대 24자리 숫자, 영문, '-', '_' 조합으로 사업자별로 중복되지 않도록 구성
 
 
             // ***** 공급자 정보 *****
-            $table->string('invoicer_corpNum')->nullable(); // [필수] 공급자 사업자번호
-            $table->string('invoicer_taxRegID')->nullable(); // 공급자 종사업장 식별번호, 4자리 숫자 문자열
-            $table->string('invoicer_corpName')->nullable(); // [필수] 공급자 상호
-            $table->string('invoicer_mgt_key')->nullable(); // [필수] 공급자 문서번호, 최대 24자리 숫자, 영문, '-', '_' 조합으로 사업자별로 중복되지 않도록 구성
+            $table->string('invoicer_corp_num')->nullable(); // [필수] 공급자 사업자번호
+            $table->string('invoicer_tax_reg_id')->nullable(); // 공급자 종사업장 식별번호, 4자리 숫자 문자열
+            $table->string('invoicer_corp_name')->nullable(); // [필수] 공급자 상호
+
             $table->string('invoicer_ceo_name')->nullable(); // [필수] 공급자 대표자성명
             $table->string('invoicer_addr')->nullable(); // 공급자 주소
             $table->string('invoicer_biz_class')->nullable(); // 공급자 종목
             $table->string('invoicer_biz_type')->nullable(); // 공급자 업태
+
             $table->string('invoicer_contact_name')->nullable(); // 공급자 담당자 성명
             $table->string('invoicer_email')->nullable(); // 공급자 담당자 메일주소
             $table->string('invoicer_tel')->nullable(); // 공급자 담당자 연락처
@@ -48,6 +56,8 @@ class XeQuantumTaxbillTrans extends Migration
 
             // ***** 공급받는자 정보 *****
             $table->string('invoicee_type')->nullable(); // [필수] 공급받는자 구분, '사업자', '개인', '외국인' 중 기재
+
+
             $table->string('invoicee_corp_num')->nullable(); // [필수] 공급받는자 사업자번호
             $table->string('invoicee_tax_reg_id')->nullable(); // 공급받는자 종사업장 식별번호, 4자리 숫자 문자열
             $table->string('invoicee_corp_name')->nullable(); // [필수] 공급자 상호
@@ -67,8 +77,16 @@ class XeQuantumTaxbillTrans extends Migration
 
 
             // ***** 세금계산서 기재정보 *****
+            $table->string('write_date')->nullable(); // [필수] 작성일자, 형식(yyyyMMdd) 예)20150101
             $table->string('supply_cost_total')->nullable(); // [필수] 공급가액 합계
             $table->string('tax_total')->nullable(); // [필수] 세액 합계
+
+            // 기재상 '비고' 항목
+            $table->string('remark1')->nullable();
+            $table->string('remark2')->nullable();
+            $table->string('remark3')->nullable();
+
+            // 결제정보
             $table->string('total_amount')->nullable(); // [필수] 합계금액, (공급가액 합계 + 세액 합계)
             $table->string('serial_num')->nullable(); // 기재상 '일련번호'항목
             $table->string('cash')->nullable(); // 기재상 '현금'항목
@@ -76,15 +94,11 @@ class XeQuantumTaxbillTrans extends Migration
             $table->string('note')->nullable(); // 기재상 '어음'항목
             $table->string('credit')->nullable(); // 기재상 '외상'항목
 
-            // 기재상 '비고' 항목
-            $table->string('remark1')->nullable();
-            $table->string('remark2')->nullable();
-            $table->string('remark3')->nullable();
+            $table->string('purpose_type')->nullable(); // [필수] '영수', '청구', '없음' 중 기재
 
-            // 기재상 '권' 항목, 최대값 32767
-            $table->string('kwon')->nullable();  // 미기재시 $Taxinvoice->kwon = null;
-            // 기재상 '호' 항목, 최대값 32767
-            $table->string('ho')->nullable(); // 미기재시 $Taxinvoice->ho = null;
+
+
+
 
             $table->string('business_license_y_n')->nullable(); // 사업자등록증 이미지파일 첨부여부
             $table->string('bank_book_y_n')->nullable(); // 통장사본 이미지파일 첨부여부
@@ -106,7 +120,8 @@ class XeQuantumTaxbillTrans extends Migration
             $table->string('detail_id')->nullable();
             $table->string('contact_id')->nullable();
 
-
+            $table->string('status')->nullable();
+            $table->string('edited')->nullable();
         });
 
     }

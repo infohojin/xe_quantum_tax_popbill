@@ -27,9 +27,12 @@ use Linkhub\Popbill\Taxinvoice;
 use Linkhub\Popbill\TaxinvoiceDetail;
 use Linkhub\Popbill\TaxinvoiceAddContact;
 
+use Illuminate\Support\Facades\DB;
+
 use XEHub\XePlugin\CustomQuantum\Tax\Http\Controllers\PopbillController;
 class TaxinvoiceRegister extends PopbillController
 {
+    const TABLENAME = "xe_quantum_taxbill_trans";
 
     public function __construct()
     {
@@ -45,36 +48,20 @@ class TaxinvoiceRegister extends PopbillController
         return view("tax::Taxinvoice.register");
     }
 
-    public function CheckMgtKeyInUse(){
 
-        // 발행유형, SELL:매출, BUY:매입, TRUSTEE:위수탁
-        $mgtKeyType = TIENumMgtKeyType::SELL;
-
-        try {
-            $result = $this->PopbillTaxinvoice->CheckMgtKeyInUse($this->testCorpNum, $mgtKeyType,  $this->getInvoicerMgtKey() );
-            //$result ? return false : return true;
-            return $result;
-        }
-        catch(PopbillException $pe) {
-            $code = $pe->getCode();
-            $message = $pe->getMessage();
-            //return view('PResponse', ['code' => $code, 'message' => $message]);
-        }
-    }
 
     // 임시발행
     public function Register()
     {
-        $this->setInvoicerMgtKey('20220405-PHP7-003'); // 세금계산서 문서번호
+        // 세금계산서 문서번호
+        $invoicerMgtKey = $this->invoiceMgtKeyGen(date("Ymd").'-SHOPID');
+        $this->setInvoicerMgtKey($invoicerMgtKey);
         if(!$this->CheckMgtKeyInUse()) {
-            // 세금계산서 정보
-            $this->setTaxInfo([
-                'writeDate' => '20220405', // 작성일자, 형식(yyyyMMdd) 예)20150101
-                'issueType' => "정발행", // 발행유형, {정발행, 역발행, 위수탁} 중 기재
-                'chargeDirection' => "정과금", // 과금방향, {정과금, 역과금} 중 기재
-                'purposeType' => "영수", // [영수, 청구, 없음] 중 기재
-                'taxType' => '과세' // 과세형태, {과세, 영세, 면세} 중 기재
-            ]);
+
+            // 세금계산서 발행 정보
+            $this->setWriteDate()->setIssueType("정발행")->setIssueType("정발행");
+            $this->setChargeDirection("정과금")->setPurposeType("영수")->setTaxType('과세');
+
 
 
             // 공급자 정보
@@ -91,13 +78,8 @@ class TaxinvoiceRegister extends PopbillController
                 'invoicerContactName' => '공급자 담당자성명', // 공급자 담당자 성명
                 'invoicerEmail' => '', // 공급자 담당자 메일주소
                 'invoicerTEL' => '', // 공급자 담당자 연락처
-                'invoicerHP' => '', // 공급자 휴대폰 번호
-                // 발행 안내 문자 전송여부 (true / false 중 택 1)
-                // └ true = 전송 , false = 미전송
-                // └ 공급받는자 (주)담당자 휴대폰번호 {invoiceeHP1} 값으로 문자 전송
-                // - 전송 시 포인트 차감되며, 전송실패시 환불처리
-                'invoicerSMSSendYN' => false
-            ]);
+                'invoicerHP' => '' // 공급자 휴대폰 번호
+            ])->setInvoicerSMSSendYN($status=false);
 
 
             // 공급받는자 정보
@@ -126,11 +108,7 @@ class TaxinvoiceRegister extends PopbillController
                 'invoiceeTEL1' => '', // 공급받는자 담당자 연락처
                 'invoiceeHP1' => '', // 공급받는자 담당자 휴대폰 번호
 
-                // └ true = 전송 , false = 미전송
-                // └ 공급자 담당자 휴대폰번호 {invoicerHP} 값으로 문자 전송
-                // - 전송 시 포인트 차감되며, 전송실패시 환불처리
-                'invoiceeSMSSendYN' => false // 역발행 안내 문자 전송여부 (true / false 중 택 1)
-            ]);
+            ])->setInvoiceeSMSSendYN($status=false);
 
 
             $this->setTrans([
@@ -206,7 +184,12 @@ class TaxinvoiceRegister extends PopbillController
 
             $this->writeSpecification(); // 거래명세서 동시작성여부
 
-            //dd($this->Taxinvoice);
+
+
+
+
+            $row = toInsertDBObject(self::TABLENAME, $this->Taxinvoice);
+            dd($row);
 
             try {
                 $result = $this->PopbillTaxinvoice->Register(

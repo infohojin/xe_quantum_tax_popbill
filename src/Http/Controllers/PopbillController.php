@@ -18,10 +18,13 @@ use Linkhub\Popbill\TIENumMgtKeyType;
 use Linkhub\Popbill\Taxinvoice;
 use Linkhub\Popbill\TaxinvoiceDetail;
 use Linkhub\Popbill\TaxinvoiceAddContact;
-;
+
+use Illuminate\Support\Facades\DB;
 
 class PopbillController extends Controller
 {
+    const TABLENAME = "xe_quantum_taxbill_trans";
+
     protected $Taxinvoice;
 
     protected $testCorpNum = '1234567890'; // 팝빌회원 사업자번호, '-' 제외 10자리
@@ -176,4 +179,174 @@ class PopbillController extends Controller
         $this->Taxinvoice->addContactList = $addContactList;
         return $this;
     }
+
+    protected function fieldName($key)
+    {
+        $fields = [
+            'write_date'=>"writeDate",
+            'issue_type'=>"issueType",
+            'charge_direction'=>"chargeDirection",
+            'purpose_type'=>"purposeType",
+            'tax_type'=>"taxType",
+            'invoicer_corp_num'=>"invoicerCorpNum",
+            'invoicer_tax_reg_id'=>"invoicerTaxRegID",
+            'invoicer_corp_name'=>"invoicerCorpName",
+            'invoicer_mgt_key'=>"",
+            'invoicer_ceo_name'=>"invoicerCEOName",
+            'invoicer_addr'=>"invoicerAddr",
+            'invoicer_biz_class'=>"invoicerBizClass",
+            'invoicer_biz_type'=>"invoicerBizType",
+            'invoicer_contact_name'=>"invoicerContactName",
+            'invoicer_email'=>"invoicerEmail",
+            'invoicer_tel'=>"invoicerTEL",
+            'invoicer_hp'=>"invoicerHP",
+            'invoicer_sms_send_y_n'=>"invoicerSMSSendYN",
+            'invoicee_type'=>"invoiceeType",
+            'invoicee_corp_num'=>"invoiceeCorpNum",
+            'invoicee_tax_reg_id'=>"invoiceeTaxRegID",
+            'invoicee_corp_name'=>"invoiceeCorpName",
+            'invoicee_mgt_key'=>"invoiceeMgtKey",
+            'invoicee_ceo_name'=>"invoiceeCEOName",
+            'invoicee_addr'=>"invoiceeAddr",
+            'invoicee_biz_type'=>"invoiceeBizType",
+            'invoicee_biz_class'=>"invoiceeBizClass",
+            'invoicee_contact_name1'=>"invoiceeContactName1",
+            'invoicee_email1'=>"invoiceeEmail1",
+            'invoicee_tel1'=>"invoiceeTEL1",
+            'invoicee_hp1'=>"invoiceeHP1",
+            'supply_cost_total'=>"supplyCostTotal",
+            'tax_total'=>"taxTotal",
+            'total_amount'=>"totalAmount",
+            'serial_num'=>"serialNum",
+            'cash'=>"cash",
+            'chk_bill'=>"chkBill",
+            'note'=>"note",
+            'credit'=>"credit",
+            'remark1'=>"remark1",
+            'remark2'=>"remark2",
+            'remark3'=>"remark3",
+            'kwon'=>"kwon",
+            'ho'=>"ho",
+            'business_license_y_n'=>"businessLicenseYN",
+            'bank_book_y_n'=>"bankBookYN",
+            'modify_code'=>"modifyCode",
+            'org_nts_confirm_num'=>"orgNTSConfirmNum",
+
+            'purchase_dt' => 'purchaseDT',
+            'item_name'=>"itemName",
+            'spec'=>"spec",
+            'qty'=>"qty",
+            'unit_cost'=>"unitCost",
+            'supply_cost'=>"supplyCost",
+            'tax'=>"tax",
+            'remark'=>"remark",
+
+            'serial_num'=>"serialNum",
+            'email'=>"email",
+            'contact_name'=>"contactName"
+
+        ];
+
+        return $fields[$key];
+    }
+
+    /**
+     * 세금계산서 문서번호 생성
+     */
+    public function invoiceMgtKeyGen($prefix)
+    {
+        $max = DB::table(self::TABLENAME)->count();
+        return $prefix."-".sprintf('%03d', $max+1);
+    }
+
+    public function CheckMgtKeyInUse(){
+
+        // 발행유형, SELL:매출, BUY:매입, TRUSTEE:위수탁
+        $mgtKeyType = TIENumMgtKeyType::SELL;
+
+        try {
+            $result = $this->PopbillTaxinvoice->CheckMgtKeyInUse($this->testCorpNum, $mgtKeyType,  $this->getInvoicerMgtKey() );
+            //$result ? return false : return true;
+            return $result;
+        }
+        catch(PopbillException $pe) {
+            $code = $pe->getCode();
+            $message = $pe->getMessage();
+            //return view('PResponse', ['code' => $code, 'message' => $message]);
+        }
+    }
+
+    // 작성일자
+    public function setWriteDate($date=null)
+    {
+        if($date) {
+            $this->Taxinvoice->writeDate = $date;
+        } else {
+            //형식(yyyyMMdd) 예)20150101
+            $this->Taxinvoice->writeDate = date("Ymd");
+        }
+
+        return $this;
+    }
+
+    /**
+     * 발행유형
+     */
+    public function setIssueType($type="정발행")
+    {
+        // 정발행
+        // 역발행
+        // 위수탁 중 기재
+        $this->Taxinvoice->issueType = $type;
+        return $this;
+    }
+
+    // 과금방향, {정과금, 역과금} 중 기재
+    public function setChargeDirection($charge = "정과금")
+    {
+        $this->Taxinvoice->chargeDirection = $charge;
+        return $this;
+    }
+
+    // [영수, 청구, 없음] 중 기재
+    public function setPurposeType($purpose="영수"){
+        $this->Taxinvoice->purposeType = $purpose;
+        return $this;
+    }
+
+    // 과세형태, {과세, 영세, 면세} 중 기재
+    public function setTaxType($tax='과세'){
+        $this->Taxinvoice->taxTypee = $tax;
+        return $this;
+    }
+
+    /**
+     * 발행 안내 문자 전송여부 (true / false 중 택 1)
+     */
+    public function setInvoicerSMSSendYN($status=false)
+    {
+        // └ true = 전송 , false = 미전송
+        // └ 공급받는자 (주)담당자 휴대폰번호 {invoiceeHP1} 값으로 문자 전송
+        // - 전송 시 포인트 차감되며, 전송실패시 환불처리
+        $this->Taxinvoice->invoicerSMSSendYN = $status;
+        return $this;
+    }
+
+
+    /**
+     * 역발행 안내 문자 전송여부 (true / false 중 택 1)
+     * 공급자 담당자 휴대폰번호 {invoicerHP} 값으로 문자 전송
+     */
+    public function setInvoiceeSMSSendYN($status=false)
+    {
+        // └ true = 전송 , false = 미전송
+        // - 전송 시 포인트 차감되며, 전송실패시 환불처리
+        $this->Taxinvoice->invoiceeSMSSendYN = $status;
+        return $this;
+    }
+
+
+
+
+
 }

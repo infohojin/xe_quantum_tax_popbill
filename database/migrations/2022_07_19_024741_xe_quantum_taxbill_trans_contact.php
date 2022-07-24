@@ -27,6 +27,8 @@ class XeQuantumTaxbillTransContact extends Migration
             $table->string('email')->nullable(); // 이메일주소 'test@test.com'
             $table->string('contact_name')->nullable(); // 담당자명 '팝빌담당자'
 
+            $table->string('trans_id')->nullable();
+
         });
     }
 
