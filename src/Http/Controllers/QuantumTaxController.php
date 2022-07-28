@@ -18,8 +18,8 @@ class QuantumTaxController extends Controller
         $_db = DB::table($tablename);
 
         // 검색처리
-        $search_name = 'invoicer_corp_num';
-        $search_value = '1234567890';
+        //$search_name = 'invoicer_corp_num';
+        //$search_value = '1234567890';
         if(isset($search_name)) {
             if(is_array($search_name)) {
                 // ['invoicer_corp_num'=>'1234567890']
