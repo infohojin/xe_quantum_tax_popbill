@@ -5,8 +5,8 @@ Route::get('/quantum', function () {
 });
 
 // 세금계산서 발행목록
-use XEHub\XePlugin\CustomQuantum\Tax\Http\Controllers\InvoiceTaxController;
-Route::get('/quantum/shop/tax',[InvoiceTaxController::class,"admin"]);
+use XEHub\XePlugin\CustomQuantum\Tax\Http\Controllers\QuantumTaxController;
+Route::get('/quantum/shop/tax',[QuantumTaxController::class,"admin"]);
 
 // 샵관리 페이지
 // 컨텀샵 목록 및 계산서 발행내역

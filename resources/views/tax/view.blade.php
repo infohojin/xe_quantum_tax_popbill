@@ -129,10 +129,10 @@
                                     발행
                                 </button>
                             @else
-                                <button
+                                <a href=""
                                 class="inline-flex justify-center items-center space-x-2 rounded border font-semibold focus:outline-none px-2 py-1 leading-5 text-sm border-blue-700 bg-blue-700 text-white hover:text-white hover:bg-blue-800 hover:border-blue-800 focus:ring focus:ring-blue-500 focus:ring-opacity-50 active:bg-blue-700 active:border-blue-700">
                                     임시등록
-                                </button>
+                                </a>
                             @endif
 
                         </div>
