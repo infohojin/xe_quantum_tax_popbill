@@ -51,7 +51,7 @@ class TaxinvoiceRegister extends PopbillController
 
 
     // 임시발행
-    public function Register()
+    public function register()
     {
         // 세금계산서 문서번호
         $invoicerMgtKey = $this->invoiceMgtKeyGen(date("Ymd").'-SHOPID');
@@ -188,8 +188,8 @@ class TaxinvoiceRegister extends PopbillController
 
 
 
-            $row = toInsertDBObject(self::TABLENAME, $this->Taxinvoice);
-            dd($row);
+            //$row = toInsertDBObject(self::TABLENAME, $this->Taxinvoice);
+            // dd($row);
 
             try {
                 $result = $this->PopbillTaxinvoice->Register(
@@ -210,7 +210,7 @@ class TaxinvoiceRegister extends PopbillController
 
         }
 
-        return "사용중인 문서 번호 입니다.";
+        return $invoicerMgtKey."사용중인 문서 번호 입니다.";
 
 
 

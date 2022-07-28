@@ -1,6 +1,6 @@
 <?php
 
-namespace XEHub\XePlugin\CustomQuantum\Tax\Http\Controllers;
+namespace XEHub\XePlugin\CustomQuantum\Tax\Http;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -21,7 +21,7 @@ use Linkhub\Popbill\TaxinvoiceAddContact;
 
 use Illuminate\Support\Facades\DB;
 
-class PopbillController extends Controller
+class Popbill
 {
     const TABLENAME = "xe_quantum_taxbill_trans";
 
@@ -63,6 +63,11 @@ class PopbillController extends Controller
     {
         $this->testCorpNum = $num;
         return $this;
+    }
+
+    protected function getCorpNum()
+    {
+        return $this->testCorpNum;
     }
 
     protected function setUserID($userid)
@@ -259,6 +264,7 @@ class PopbillController extends Controller
         return $prefix."-".sprintf('%03d', $max+1);
     }
 
+    /*
     public function CheckMgtKeyInUse(){
 
         // 발행유형, SELL:매출, BUY:매입, TRUSTEE:위수탁
@@ -267,14 +273,16 @@ class PopbillController extends Controller
         try {
             $result = $this->PopbillTaxinvoice->CheckMgtKeyInUse($this->testCorpNum, $mgtKeyType,  $this->getInvoicerMgtKey() );
             //$result ? return false : return true;
-            return $result;
+            //return $result;
         }
         catch(PopbillException $pe) {
             $code = $pe->getCode();
             $message = $pe->getMessage();
+
             //return view('PResponse', ['code' => $code, 'message' => $message]);
         }
     }
+    */
 
     // 작성일자
     public function setWriteDate($date=null)
@@ -296,7 +304,7 @@ class PopbillController extends Controller
     {
         // 정발행
         // 역발행
-        // 위수탁 중 기재
+        // 위수탁
         $this->Taxinvoice->issueType = $type;
         return $this;
     }
@@ -316,7 +324,7 @@ class PopbillController extends Controller
 
     // 과세형태, {과세, 영세, 면세} 중 기재
     public function setTaxType($tax='과세'){
-        $this->Taxinvoice->taxTypee = $tax;
+        $this->Taxinvoice->taxType = $tax;
         return $this;
     }
 

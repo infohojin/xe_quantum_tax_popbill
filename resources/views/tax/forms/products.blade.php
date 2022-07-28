@@ -28,6 +28,10 @@
                 $month = substr($item->purchase_dt,4,2);
                 $day = substr($item->purchase_dt,6,2);
             @endphp
+
+            <input type="hidden" name="products[id][]" value="{{ old('pid', $item->id) }}">
+
+
             <td class="p-1 w-8">
                 <input type="text" name="products[purchase_month][]"
                     class="text-sm border border-stone-400 p-0.5 w-full"
@@ -78,6 +82,7 @@
         @endforeach
 
         <tr>
+            <input type="hidden" name="products[id][]" value="{{ old('pid', '') }}">
             <td class="p-1 w-8">
                 <input type="text" name="products[purchase_month][]"
                     class="text-sm border border-stone-400 p-0.5 w-full"

@@ -49,19 +49,19 @@
                 <label class="inline-flex items-center">
                   <input type="radio"
                   class="border border-gray-200 h-4 w-4 text-indigo-500 focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50" id="radio1"
-                  name="purpose_type">
+                  name="purpose_type" value="영수">
                   <span class="ml-2">영수</span>
                 </label>
                 <label class="inline-flex items-center ml-6">
                   <input type="radio"
                   class="border border-gray-200 h-4 w-4 text-indigo-500 focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50" id="radio2"
-                  name="purpose_type" checked>
+                  name="purpose_type"  value="청구" checked>
                   <span class="ml-2">청구</span>
                 </label>
                 <label class="inline-flex items-center ml-6">
                     <input type="radio"
                     class="border border-gray-200 h-4 w-4 text-indigo-500 focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50" id="radio2"
-                    name="purpose_type">
+                    name="purpose_type" value="없음">
                     <span class="ml-2">없음</span>
                   </label>
             </div>

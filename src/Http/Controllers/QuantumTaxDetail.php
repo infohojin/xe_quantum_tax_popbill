@@ -7,9 +7,99 @@ use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\DB;
 
+
 class QuantumTaxDetail extends Controller
 {
     const TABLENAME = "xe_quantum_taxbill_trans";
+
+    public function view(Request $request)
+    {
+        $tid = $request->tid; // 세금계산서 거래내역 id
+        if($tid) {
+            $row = DB::table('xe_quantum_taxbill_trans')->where('id', $tid)->first();
+            if($row) {
+                // 상세 거래상품 정보
+                $products = DB::table('xe_quantum_taxbill_detail')->where('trans_id', $row->id)->get();
+                // 담당자 정보
+                $contact = DB::table('xe_quantum_taxbill_contact')->where('trans_id', $row->id)->get();
+
+                return view("tax::tax.view",[
+                    'info'=>$row,
+                    'products'=>$products,
+                    'contact'=>$contact
+                ]);
+            }
+
+            return "선택한 tid의 내역이 존재하지 않습니다.";
+        }
+
+        return "거래내역 tid가 선택되지 않았습니다.";
+    }
+
+    public function update(Request $request)
+    {
+        $tid = $request->id; // 세금계산서 거래내역 id
+        if($tid) {
+            $data = [];
+            foreach($request->all() as $key=>$value) {
+                if(is_array($value)) continue;
+                if($key[0] == "_") continue;
+
+                $data[$key] = $value;
+            }
+            unset($data['invoicer_mgt_key']); // 문서번호는 수정하지 않음
+            DB::table('xe_quantum_taxbill_trans')->where('id',$tid)->update($data); // 갱신
+
+            // 거래목록 수정
+            // step1: 컬럼필드별 데이터 어레이 정렬처리
+            foreach($request->products as $key => $item) {
+                foreach($item as $i => $value) {
+                    $products[$i][$key] = $value;
+                    $products[$i]['serial_num'] = $i+1;
+                    $products[$i]['trans_id'] = $tid;
+                }
+            }
+
+            // step2: 날짜형식 변환 및 필드처리
+            foreach($products as $i => $item) {
+                $purchase_dt = date("Y").sprintf("%02d",$item['purchase_month']).sprintf("%02d",$item['purchase_day']);
+                $products[$i]['purchase_dt'] = $purchase_dt;
+
+                unset($products[$i]['purchase_month']);
+                unset($products[$i]['purchase_day']);
+            }
+
+            // 새로 추가된것과 업데이트 할것을 구분하여 처리
+            foreach($products as $item){
+
+                if($item['id']) {
+                    //$_update []= $item; // 수정해야 되는 항목
+                    DB::table('xe_quantum_taxbill_detail')->where('id',$item['id'])->update($item);
+                } else {
+                    //$_insert []= $item;
+                    DB::table('xe_quantum_taxbill_detail')->insert($item);
+                }
+            }
+
+
+
+
+            // 담당자 수정
+            // ==>작업해야함
+
+            return redirect()->back();
+        }
+        return "거래내역 tid가 선택되지 않았습니다.";
+    }
+
+
+
+
+
+
+
+
+
 
     public function detail(Request $request)
     {

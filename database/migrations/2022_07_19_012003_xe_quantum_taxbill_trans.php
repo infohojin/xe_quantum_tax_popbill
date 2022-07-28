@@ -115,6 +115,7 @@ class XeQuantumTaxbillTrans extends Migration
 
             // [수정세금계산서 작성시 필수] 수정세금계산서 작성시 원본세금계산서의 국세청승인번호 기재
             //$Taxinvoice->orgNTSConfirmNum = '';
+            $table->string('nts_confirm_num')->nullable();
             $table->string('org_nts_confirm_num')->nullable();
 
             $table->string('detail_id')->nullable();
